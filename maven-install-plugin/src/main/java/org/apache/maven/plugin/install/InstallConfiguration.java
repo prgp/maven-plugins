@@ -43,11 +43,7 @@ public class InstallConfiguration
     {
       if ( "org.apache.maven.plugins:maven-install-plugin".equals( p.getKey() ) )
       {
-        Object cfg = p.getConfiguration();
-        if ( cfg != null )
-        {
-          config = InstallConfiguration.from( cfg, config );
-        }
+        config = InstallConfiguration.from( p.getConfiguration(), config );
         for ( PluginExecution e : p.getExecutions() )
         {
           if ( "default-install".equals( e.getId() ) )
@@ -62,9 +58,13 @@ public class InstallConfiguration
     return config;
   }
 
-  static InstallConfiguration from( Object configurationObject, InstallConfiguration previous )
+  static InstallConfiguration from( @Nullable Object configurationObject, InstallConfiguration previous )
   {
-    if ( configurationObject instanceof Xpp3Dom )
+    if ( configurationObject == null )
+    {
+      return previous;
+    }
+    else if ( configurationObject instanceof Xpp3Dom )
     {
       return from( (Xpp3Dom) configurationObject, previous );
     }

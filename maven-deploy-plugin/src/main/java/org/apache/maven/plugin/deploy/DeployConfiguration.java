@@ -43,11 +43,7 @@ public class DeployConfiguration
     {
       if ( "org.apache.maven.plugins:maven-deploy-plugin".equals( p.getKey() ) )
       {
-        Object cfg = p.getConfiguration();
-        if ( cfg != null )
-        {
-          config = DeployConfiguration.from( cfg, config );
-        }
+        config = DeployConfiguration.from( p.getConfiguration(), config );
         for ( PluginExecution e : p.getExecutions() )
         {
           if ( "default-install".equals( e.getId() ) )
@@ -62,9 +58,13 @@ public class DeployConfiguration
     return config;
   }
 
-  static DeployConfiguration from( Object configurationObject, DeployConfiguration previous )
+  static DeployConfiguration from( @Nullable Object configurationObject, DeployConfiguration previous )
   {
-    if ( configurationObject instanceof Xpp3Dom )
+    if ( configurationObject == null )
+    {
+      return previous;
+    }
+    else if ( configurationObject instanceof Xpp3Dom )
     {
       return from( (Xpp3Dom) configurationObject, previous );
     }
