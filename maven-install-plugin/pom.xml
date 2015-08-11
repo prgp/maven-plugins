@@ -30,7 +30,7 @@ under the License.
   </parent>
 
   <artifactId>maven-install-plugin</artifactId>
-  <version>2.5.2.2-PA</version>
+  <version>2.5.2.3-PA-SNAPSHOT</version>
   <packaging>maven-plugin</packaging>
 
   <name>Apache Maven Install Plugin</name>
