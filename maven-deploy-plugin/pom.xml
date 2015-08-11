@@ -46,6 +46,12 @@ under the License.
     <url>https://issues.apache.org/jira/browse/MDEPLOY</url>
   </issueManagement>
 
+  <scm>
+    <connection>scm:git:ssh://github.com/prgp/maven-plugins.git</connection>
+    <developerConnection>scm:git:ssh://git@github.com/prgp/maven-plugins.git</developerConnection>
+    <url>http://github.com/prgp/maven-plugins</url>
+  </scm>
+
   <distributionManagement>
     <snapshotRepository>
       <id>pressassociation.snapshots</id>
