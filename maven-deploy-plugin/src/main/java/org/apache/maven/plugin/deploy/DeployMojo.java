@@ -166,11 +166,12 @@ public class DeployMojo
 
                 if ( config.deployAtEnd() && !config.skip() && !( deployProject.equals( project ) && skip ) )
                 {
-                    getLog().info( "Deploying " + project.getGroupId() + ":" + project.getArtifactId() + ":"
-                                   + project.getVersion() + " now" );
+                    getLog().info( "Deploying " + deployProject.getGroupId()
+                                   + ":" + deployProject.getArtifactId()
+                                   + ":" + deployProject.getVersion() + " now" );
 
                     deployProject( new DeployRequest()
-                                      .setProject( project )
+                                      .setProject( deployProject )
                                       .setUpdateReleaseInfo( config.updateReleaseInfo() )
                                       .setRetryFailedDeploymentCount( config.retryFailedDeploymentCount() )
                                       .setAltReleaseDeploymentRepository( config.altReleaseDeploymentRepository() )

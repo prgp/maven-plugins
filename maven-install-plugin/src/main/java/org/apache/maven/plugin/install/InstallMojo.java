@@ -148,8 +148,9 @@ public class InstallMojo
 
                 if ( config.installAtEnd() && !config.skip() && !( installProject.equals( project ) && skip ) )
                 {
-                    getLog().info( "Installing " + project.getGroupId() + ":" + project.getArtifactId() + ":"
-                                   + project.getVersion() + " now" );
+                    getLog().info( "Installing " + installProject.getGroupId()
+                                   + ":" + installProject.getArtifactId()
+                                   + ":" + installProject.getVersion() + " now" );
 
                     installProject( new InstallRequest()
                                         .setProject( installProject )
