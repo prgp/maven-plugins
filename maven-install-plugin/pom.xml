@@ -30,7 +30,7 @@ under the License.
   </parent>
 
   <artifactId>maven-install-plugin</artifactId>
-  <version>2.5.2.1-PA-SNAPSHOT</version>
+  <version>2.5.2.1-PA</version>
   <packaging>maven-plugin</packaging>
 
   <name>Apache Maven Install Plugin</name>
@@ -45,6 +45,7 @@ under the License.
     <connection>scm:git:ssh://github.com/prgp/maven-plugins.git</connection>
     <developerConnection>scm:git:ssh://git@github.com/prgp/maven-plugins.git</developerConnection>
     <url>http://github.com/prgp/maven-plugins</url>
+    <tag>maven-install-plugin-2.5.2.1-PA</tag>
   </scm>
 
   <distributionManagement>
