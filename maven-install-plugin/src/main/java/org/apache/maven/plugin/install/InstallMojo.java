@@ -20,12 +20,9 @@ package org.apache.maven.plugin.install;
  */
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.installer.ArtifactInstallationException;
@@ -48,16 +45,6 @@ import org.apache.maven.project.artifact.ProjectArtifactMetadata;
 public class InstallMojo
     extends AbstractInstallMojo
 {
-
-    /**
-     * When building with multiple threads, reaching the last project doesn't have to mean that all projects are ready
-     * to be installed
-     */
-    private static final AtomicInteger READYPROJECTSCOUTNER = new AtomicInteger();
-
-    private static final List<InstallRequest> INSTALLREQUESTS =
-        Collections.synchronizedList( new ArrayList<InstallRequest>() );
-
     /**
      */
     @Parameter( defaultValue = "${project}", readonly = true, required = true )
@@ -130,26 +117,46 @@ public class InstallMojo
             }
             else
             {
-                INSTALLREQUESTS.add( currentExecutionInstallRequest );
                 addedInstallRequest = true;
             }
         }
 
-        boolean projectsReady = READYPROJECTSCOUTNER.incrementAndGet() == reactorProjects.size();
-        if ( projectsReady )
+        if ( isLastProject() )
         {
-            synchronized ( INSTALLREQUESTS )
-            {
-                while ( !INSTALLREQUESTS.isEmpty() )
-                {
-                    installProject( INSTALLREQUESTS.remove( 0 ) );
-                }
-            }
+            // NB the last project does not have to be deferred ...
+            installDeferredProjects();
         }
         else if ( addedInstallRequest )
         {
             getLog().info( "Installing " + project.getGroupId() + ":" + project.getArtifactId() + ":"
                                + project.getVersion() + " at end" );
+        }
+    }
+
+    private boolean isLastProject()
+    {
+        return project.equals( reactorProjects.get( reactorProjects.size() - 1 ) );
+    }
+
+    private void installDeferredProjects() throws MojoExecutionException
+    {
+        synchronized ( reactorProjects )
+        {
+            for ( MavenProject installProject : reactorProjects )
+            {
+                InstallConfiguration config = InstallConfiguration.from( installProject );
+
+                if ( config.installAtEnd() && !config.skip() && !( installProject.equals( project ) && skip ) )
+                {
+                    getLog().info( "Installing " + project.getGroupId() + ":" + project.getArtifactId() + ":"
+                                   + project.getVersion() + " now" );
+
+                    installProject( new InstallRequest()
+                                        .setProject( installProject )
+                                        .setCreateChecksum( config.createChecksum() )
+                                        .setUpdateReleaseInfo( config.updateReleaseInfo() ) );
+                }
+            }
         }
     }
 
