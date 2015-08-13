@@ -30,7 +30,7 @@ under the License.
   </parent>
 
   <artifactId>maven-install-plugin</artifactId>
-  <version>2.5.3-SNAPSHOT</version>
+  <version>2.5.2.4-PA-SNAPSHOT</version>
   <packaging>maven-plugin</packaging>
 
   <name>Apache Maven Install Plugin</name>
@@ -41,22 +41,21 @@ under the License.
     <maven>${mavenVersion}</maven>
   </prerequisites>
 
-  <scm>
-    <connection>scm:svn:http://svn.apache.org/repos/asf/maven/plugins/trunk/maven-install-plugin/</connection>
-    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/maven/plugins/trunk/maven-install-plugin/
-    </developerConnection>
-    <url>http://svn.apache.org/viewvc/maven/plugins/trunk/maven-install-plugin/</url>
-  </scm>
+  <distributionManagement>
+    <snapshotRepository>
+      <id>pressassociation.snapshots</id>
+      <url>http://nexus.howden.press.net/nexus/content/repositories/snapshots</url>
+    </snapshotRepository>
+    <repository>
+      <id>pressassociation.releases</id>
+      <url>http://nexus.howden.press.net/nexus/content/repositories/releases</url>
+    </repository>
+  </distributionManagement>
+
   <issueManagement>
     <system>jira</system>
     <url>https://issues.apache.org/jira/browse/MINSTALL</url>
   </issueManagement>
-  <distributionManagement>
-    <site>
-      <id>apache.website</id>
-      <url>scm:svn:https://svn.apache.org/repos/infra/websites/production/maven/components/${maven.site.path}</url>
-    </site>
-  </distributionManagement>
 
   <properties>
     <mavenVersion>2.2.1</mavenVersion>
