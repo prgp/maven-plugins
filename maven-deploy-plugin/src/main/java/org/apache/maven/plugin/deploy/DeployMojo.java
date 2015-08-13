@@ -20,10 +20,7 @@ package org.apache.maven.plugin.deploy;
  */
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -54,15 +51,6 @@ public class DeployMojo
 {
 
     private static final Pattern ALT_REPO_SYNTAX_PATTERN = Pattern.compile( "(.+)::(.+)::(.+)" );
-
-    /**
-     * When building with multiple threads, reaching the last project doesn't have to mean that all projects are ready
-     * to be deployed
-     */
-    private static final AtomicInteger READYPROJECTSCOUNTER = new AtomicInteger();
-
-    private static final List<DeployRequest> DEPLOYREQUESTS =
-        Collections.synchronizedList( new ArrayList<DeployRequest>() );
 
     /**
      */
@@ -148,26 +136,49 @@ public class DeployMojo
             }
             else
             {
-                DEPLOYREQUESTS.add( currentExecutionDeployRequest );
                 addedDeployRequest = true;
             }
         }
 
-        boolean projectsReady = READYPROJECTSCOUNTER.incrementAndGet() == reactorProjects.size();
-        if ( projectsReady )
+        if ( isLastProject() )
         {
-            synchronized ( DEPLOYREQUESTS )
-            {
-                while ( !DEPLOYREQUESTS.isEmpty() )
-                {
-                    deployProject( DEPLOYREQUESTS.remove( 0 ) );
-                }
-            }
+            deployDeferredProjects();
         }
         else if ( addedDeployRequest )
         {
             getLog().info( "Deploying " + project.getGroupId() + ":" + project.getArtifactId() + ":"
                                + project.getVersion() + " at end" );
+        }
+    }
+
+    private boolean isLastProject()
+    {
+        return project.equals( reactorProjects.get( reactorProjects.size() - 1 ) );
+    }
+
+    private void deployDeferredProjects() throws MojoExecutionException, MojoFailureException
+    {
+        synchronized ( reactorProjects )
+        {
+            for ( MavenProject deployProject : reactorProjects )
+            {
+                DeployConfiguration config = DeployConfiguration.from( deployProject );
+
+                if ( config.deployAtEnd() && !config.skip() && !( deployProject.equals( project ) && skip ) )
+                {
+                    getLog().info( "Deploying " + deployProject.getGroupId()
+                                   + ":" + deployProject.getArtifactId()
+                                   + ":" + deployProject.getVersion() + " now" );
+
+                    deployProject( new DeployRequest()
+                                      .setProject( deployProject )
+                                      .setUpdateReleaseInfo( config.updateReleaseInfo() )
+                                      .setRetryFailedDeploymentCount( config.retryFailedDeploymentCount() )
+                                      .setAltReleaseDeploymentRepository( config.altReleaseDeploymentRepository() )
+                                      .setAltSnapshotDeploymentRepository( config.altSnapshotDeploymentRepository() )
+                                      .setAltDeploymentRepository( config.altDeploymentRepository() ) );
+                }
+            }
         }
     }
 
